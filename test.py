@@ -5,7 +5,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    print("测试")
     return "index"
 
 
