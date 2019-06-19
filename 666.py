@@ -1,1 +1,1 @@
-print("nishishui ")
+print("你好")
