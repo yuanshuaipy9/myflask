@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     print("nihao")
-	print("66")
+    print("66")
     return "index"
 
 
