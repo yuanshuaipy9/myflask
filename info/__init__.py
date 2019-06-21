@@ -6,12 +6,18 @@ from redis import StrictRedis
 
 from config import config
 
-app = Flask(__name__)
-app.config.from_object(config["development"])
-db=SQLAlchemy(app)
+# 初始化数据库
+# 在Flask很多扩展里面都可以先初始化扩展的对象，然后再去调用init_app方法去初始化
+db=SQLAlchemy()
 
-redis_store=StrictRedis(host=config["development"].REDIS_HOST,port=config["development"].REDIS_PORT)
+def create_app(config_name):
+    app = Flask(__name__)
+    app.config.from_object(config[config_name])
 
-CSRFProtect(app)
-# 设置session保存指定位置
-Session(app)
+    db.init_app(app)
+    redis_store=StrictRedis(host=config[config_name].REDIS_HOST,port=config[config_name].REDIS_PORT)
+
+    CSRFProtect(app)
+    # 设置session保存指定位置
+    Session(app)
+    return app
