@@ -11,7 +11,10 @@ from config import config
 
 # 初始化数据库
 # 在Flask很多扩展里面都可以先初始化扩展的对象，然后再去调用init_app方法去初始化
-db=SQLAlchemy()
+
+
+db = SQLAlchemy()
+
 
 def setup_log(config_name):
     # 设置日志的记录等级
@@ -26,15 +29,22 @@ def setup_log(config_name):
     logging.getLogger().addHandler(file_log_handler)
 
 
+redis_store = None # type:StrictRedis
+
+
 def create_app(config_name):
     setup_log(config_name)
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
     db.init_app(app)
-    redis_store=StrictRedis(host=config[config_name].REDIS_HOST,port=config[config_name].REDIS_PORT)
+    global redis_store
+    redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT)
 
     CSRFProtect(app)
     # 设置session保存指定位置
     Session(app)
+
+    from info.modules.index import index_blu
+    app.register_blueprint(index_blu)
     return app

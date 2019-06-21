@@ -1,4 +1,6 @@
-from flask import session
+import logging
+
+from flask import session, current_app
 from flask_migrate import Migrate, MigrateCommand
 
 from flask_script import Manager
@@ -13,10 +15,8 @@ Migrate(app, db)
 manager.add_command('db', MigrateCommand)
 
 
-@app.route("/")
-def index():
-    session["aaa"]="itheima"
-    return "index"
+
+
 
 
 if __name__ == '__main__':
