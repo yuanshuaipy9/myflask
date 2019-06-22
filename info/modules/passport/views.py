@@ -1,8 +1,62 @@
-from flask import request, abort, current_app, make_response
+import random
+import re
+
+from flask import request, abort, current_app, make_response, jsonify
 
 from info import redis_store, constants
+from info.libs.yuntongxun.sms import CCP
 from info.utils.captcha.captcha import captcha
+from info.utils.response_code import RET
 from . import passport_blu
+
+@passport_blu.route("/sma_code",methods=["post"])
+def get_sms_code():
+    """
+    1.取到参数mobile，image_code，image_code_id
+    2.判断是否有值
+    3.取出redis里面存放的图片验证码
+    4.与用户提交的验证码内容进行对比，如果对比不一致，返回 输入错误的验证码
+    5.如果一致，生成验证码的内容（随机数据）
+    6.发送短信验证码，并保存到redis中，设置过期时间
+    7.告知发送结果
+    :return:
+    """
+    params_dict=request.json
+    mobile = params_dict.get("mobile")
+    image_code = params_dict.get("image_code")
+    image_code_id = params_dict.get("image_code_id")
+
+    if not all([mobile,image_code,image_code_id]):
+        return jsonify(errno=RET.DBERR,errmsg="参数有误")
+    if not re.match("1[3456789]\d{9}",mobile):
+        return jsonify(errno=RET.DBERR,errmsg="手机号码格式有误")
+
+    try:
+        real_image_code=redis_store.get("ImageCodeId_" + image_code_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据查询失败")
+
+    if not real_image_code:
+        return jsonify(errno=RET.NODATA, errmsg="图片验证码已过期")
+    if real_image_code.upper()!=image_code.upper():
+        return jsonify(errno=RET.DATAERR, errmsg="验证码输入错误")
+
+    sms_code_str="%06d" % random.randint(0,999999)
+    current_app.logger.debug("短信验证码的内容是：%s" % sms_code_str)
+    result=CCP().send_template_sms(mobile,[sms_code_str,int(constants.SMS_CODE_REDIS_EXPIRES / 60)],1)
+    # 发送不成功
+    if result!=0:
+        return jsonify(errno=RET.THIRDERR, errmsg="发送短信失败")
+    # 发送成功 1.存储到redis以便后续验证    2.发送成功消息
+    try:
+        redis_store.set("sms_"+mobile,sms_code_str,constants.SMS_CODE_REDIS_EXPIRES)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据保存失败")
+
+    return jsonify(errno=RET.OK, errmsg="发送成功")
+
 
 
 @passport_blu.route("/image_code")

@@ -4,7 +4,7 @@ $(function(){
 	$('.login_btn').click(function(){
         $('.login_form_con').show();
 	})
-	
+
 	// 点击关闭按钮关闭登录框或者注册框
 	$('.shutoff').click(function(){
 		$(this).closest('form').hide();
@@ -72,7 +72,7 @@ $(function(){
 	var sHash = window.location.hash;
 	if(sHash!=''){
 		var sId = sHash.substring(1);
-		var oNow = $('.'+sId);		
+		var oNow = $('.'+sId);
 		var iNowIndex = oNow.index();
 		$('.option_list li').eq(iNowIndex).addClass('active').siblings().removeClass('active');
 		oNow.show().siblings().hide();
@@ -180,6 +180,41 @@ function sendSMSCode() {
     }
 
     // TODO 发送短信验证码
+    var params={
+        "mobile":mobile,
+        "image_code":imageCode,
+        "image_code_id":imageCodeId
+    }
+    $.ajax({
+        url:"/passport/sma_code",
+        type:"post",
+        dataType:"json",
+        data:JSON.stringify(params),
+        contentType:"application/json",
+        success:function(response) {
+            if (response.errno == 0) {
+                var num = 60
+                var t=setInterval(function(){
+                    if (num==1)
+                {   clearInterval(t)
+                    $(".get_code").html("点击获取验证码")
+                    $(".get_code").attr("onclick", "sendSMSCode();");
+                }else
+                    {
+                        num-=1
+                        $(".get_code").html(num+"秒")
+                    }
+                },1000)
+            } else
+                {
+                     alert(response.errmsg)
+                    $(".get_code").attr("onclick", "sendSMSCode();")
+                }
+        }
+
+    })
+
+
 }
 
 // 调用该函数模拟点击左侧按钮
