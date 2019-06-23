@@ -37,7 +37,7 @@ def login():
     if not user:
         return jsonify(errno=RET.NODATA, errmsg="用户不存在")
 
-    if not user.check_passowrd(passport):
+    if not user.check_password(passport):
         return jsonify(errno=RET.PWDERR, errmsg="用户名或者密码错误")
 
     session["user_id"] = user.id
@@ -93,7 +93,7 @@ def register():
     user.nick_name = mobile
     # 记录用户最后一次登录时间
     user.last_login = datetime.now()
-    # TODO 对密码做处理
+    # 对密码做处理
     user.password=password
 
     # 6. 将 user 模型添加数据库
