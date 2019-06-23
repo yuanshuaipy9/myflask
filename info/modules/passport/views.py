@@ -11,6 +11,44 @@ from info.utils.captcha.captcha import captcha
 from info.utils.response_code import RET
 from . import passport_blu
 
+@passport_blu.route("/login",methods=["post"])
+def login():
+    """
+    1.接收参数
+    2.校验参数
+    3.
+    :return:
+    """
+    params_dict = request.json
+    mobile = params_dict.get("mobile")
+    passport = params_dict.get("passport")
+
+    if not all([mobile,passport]):
+        return jsonify(errno=RET.DBERR, errmsg="参数有误")
+    if not re.match("1[3456789]\d{9}", mobile):
+        return jsonify(errno=RET.DBERR, errmsg="手机号码格式有误")
+    # 校验密码
+    try:
+        user=User.query.filter(User.mobile==mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据查询错误")
+
+    if not user:
+        return jsonify(errno=RET.NODATA, errmsg="用户不存在")
+
+    if not user.check_passowrd(passport):
+        return jsonify(errno=RET.PWDERR, errmsg="用户名或者密码错误")
+
+    session["user_id"] = user.id
+    session["mobile"] = user.mobile
+    session["nick_name"] = user.nick_name
+
+    # 5. 响应
+    return jsonify(errno=RET.OK, errmsg="登录成功")
+
+
+
 @passport_blu.route("/register",methods=["post"])
 def register():
     """
