@@ -192,7 +192,7 @@ function sendSMSCode() {
         data:JSON.stringify(params),
         contentType:"application/json",
         success:function(response) {
-            if (response.errno == 0) {
+            if (response.errno == "0") {
                 var num = 60
                 var t=setInterval(function(){
                     if (num==1)
