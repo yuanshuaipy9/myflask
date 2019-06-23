@@ -118,6 +118,9 @@ $(function(){
             url: "/passport/login",
             type: "post",
             contentType: "application/json",
+            headers:{
+                    "X-CSRFToken":getCookie("csrf_token")
+                    },
             data: JSON.stringify(params),
             success: function (resp) {
                 if (resp.errno == "0") {
@@ -177,6 +180,9 @@ $(function(){
             type:"post",
             contentType:"application/json",
             data:JSON.stringify(params),
+            headers: {
+                "X-CSRFToken": getCookie('csrf_token')
+            },
             success:function(response){
                     if (response.errno=="0"){
                         //代表注册成功
@@ -225,7 +231,7 @@ function sendSMSCode() {
         return;
     }
 
-    // TODO 发送短信验证码
+    //  发送短信验证码
     var params={
         "mobile":mobile,
         "image_code":imageCode,
@@ -237,6 +243,9 @@ function sendSMSCode() {
         dataType:"json",
         data:JSON.stringify(params),
         contentType:"application/json",
+        headers: {
+                "X-CSRFToken": getCookie('csrf_token')
+            },
         success:function(response) {
             if (response.errno == "0") {
                 var num = 60
