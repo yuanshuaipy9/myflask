@@ -57,19 +57,19 @@ def register():
     user.last_login = datetime.now()
     # TODO 对密码做处理
 
-    # 6. 将 user 模型添加数据库
-    try:
-        db.session.add(user)
-        db.session.commit()
-    except Exception as e:
-        current_app.logger.error(e)
-        db.session.rollback()
-        return jsonify(errno=RET.DBERR, errmsg="数据保存失败")
-
-    # 往 session 中保存数据表示当前已经登录
-    session["user_id"]=user.id
-    session["mobile"]=user.mobile
-    session["nick_name"]=user.nick_name
+    # # 6. 将 user 模型添加数据库
+    # try:
+    #     db.session.add(user)
+    #     db.session.commit()
+    # except Exception as e:
+    #     current_app.logger.error(e)
+    #     db.session.rollback()
+    #     return jsonify(errno=RET.DBERR, errmsg="数据保存失败")
+    #
+    # # 往 session 中保存数据表示当前已经登录
+    # session["user_id"]=user.id
+    # session["mobile"]=user.mobile
+    # session["nick_name"]=user.nick_name
 
     # 7. 返回响应
     return jsonify(errno=RET.OK, errmsg="注册成功")
@@ -109,10 +109,10 @@ def get_sms_code():
 
     sms_code_str="%06d" % random.randint(0,999999)
     current_app.logger.debug("短信验证码的内容是：%s" % sms_code_str)
-    result=CCP().send_template_sms(mobile,[sms_code_str,int(constants.SMS_CODE_REDIS_EXPIRES / 60)],1)
-    # 发送不成功
-    if result!=0:
-        return jsonify(errno=RET.THIRDERR, errmsg="发送短信失败")
+    # result=CCP().send_template_sms(mobile,[sms_code_str,int(constants.SMS_CODE_REDIS_EXPIRES / 60)],1)
+    # # 发送不成功
+    # if result!=0:
+    #     return jsonify(errno=RET.THIRDERR, errmsg="发送短信失败")
     # 发送成功 1.存储到redis以便后续验证    2.发送成功消息
     try:
         redis_store.set("sms_"+mobile,sms_code_str,constants.SMS_CODE_REDIS_EXPIRES)
