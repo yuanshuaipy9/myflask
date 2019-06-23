@@ -156,7 +156,8 @@ $(function(){
             data:JSON.stringify(params),
             success:function(response){
                     if (response.errno=="0"){
-                        //
+                        //代表注册成功
+                        location.reload()
                     }else{
                         // 代表注册失败
                         alert(response.errmsg)
