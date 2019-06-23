@@ -11,6 +11,15 @@ from info.utils.captcha.captcha import captcha
 from info.utils.response_code import RET
 from . import passport_blu
 
+@passport_blu.route("/logout")
+def logout():
+    session.pop('user_id', None)
+    session.pop('mobile', None)
+    session.pop('nick_name', None)
+
+    return jsonify(errno=RET.OK, errmsg="退出成功")
+
+
 @passport_blu.route("/login",methods=["post"])
 def login():
     """
