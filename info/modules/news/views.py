@@ -32,11 +32,14 @@ def news_detail(news_id):
     # 更新新闻的点击次数
     news.clicks+=1
 
-    is_collected = True
+    is_collected = False
 
     # if 用户已登录：
     #     判断用户是否收藏当前新闻，如果收藏：
     #         is_collected = True
+    if user:
+        if news in user.collection_news:
+            is_collected=True
 
     data={
         "user": user.to_dict() if user else None,
