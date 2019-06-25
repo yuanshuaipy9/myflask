@@ -1,19 +1,14 @@
-from flask import render_template, current_app, session
+from flask import render_template, current_app, session, g
 
 from info.models import User, News
+from info.utils.common import user_login_data
 from . import news_blu
 
 
 @news_blu.route("/<int:news_id>")
+@user_login_data
 def news_detail(news_id):
-    user_id = session.get("user_id", None)
-    user = None
-    if user_id:
-        # 尝试查询用户的模型
-        try:
-            user = User.query.get(user_id)
-        except Exception as e:
-            current_app.logger.error(e)
+    user=g.user
 
     # 查询排行数据传递给后端
     news_list = []
