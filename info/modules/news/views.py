@@ -199,10 +199,26 @@ def news_detail(news_id):
     except Exception as e:
         current_app.logger.error(e)
 
+    comment_like_ids=[]
+    if g.user:
+        try:
+            # 1.取出当前评论的所有id
+            comment_ids=[comment.id for comment in comments]
+            # 2.查询comment_like的所有模型，条件 评论_id in 上一步id，user_id==g.user.id
+            comment_likes=CommentLike.query.filter(CommentLike.comment_id.in_(comment_ids),CommentLike.user_id==g.user.id).all()
+            # 3.取出所有comment_like的评论id
+            comment_like_ids=[a.comment_id for a in comment_likes]
+        except Exception as e:
+            current_app.logger.error(e)
+
     comment_dict_li=[]
     for comment in comments:
-        comment_dict_li.append(comment.to_dict())
-
+        comment_dict=comment.to_dict()
+        # 代表没有点赞
+        comment_dict["is_like"] = False
+        if comment.id in comment_like_ids:
+            comment_dict["is_like"] = True
+        comment_dict_li.append(comment_dict)
 
 
     data={
@@ -212,4 +228,6 @@ def news_detail(news_id):
         "is_collected":is_collected,
         "comments":comment_dict_li
     }
+    print()
+    print(comment_dict_li)
     return render_template("news/detail.html",data=data)
