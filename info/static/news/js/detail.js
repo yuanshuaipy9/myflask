@@ -177,11 +177,22 @@ $(function(){
                 success: function (resp) {
                     if (resp.errno == "0") {
                         // 更新点赞按钮图标
+                        var like_count=$this.attr("data-likecount")
                         if (action == "add") {
                             // 代表是点赞
+                            like_count=parseInt(like_count) + 1
                             $this.addClass('has_comment_up')
                         }else {
+                            like_count=parseInt(like_count) - 1
                             $this.removeClass('has_comment_up')
+                        }
+                        //更新点赞数据
+                          //先更新属性值
+                        $this.attr("data-likecount",like_count)
+                        if (like_count==0){
+                            $this.html("赞")
+                        }else{
+                            $this.html(like_count)
                         }
                     }else if (resp.errno == "4101"){
                         $('.login_form_con').show();
