@@ -178,6 +178,9 @@ $(function(){
                     if (resp.errno == "0") {
                         // 更新点赞按钮图标
                         var like_count=$this.attr("data-likecount")
+                        if (like_count==undefined){
+                            like_count=0
+                        }
                         if (action == "add") {
                             // 代表是点赞
                             like_count=parseInt(like_count) + 1
