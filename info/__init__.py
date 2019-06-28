@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
-from flask import Flask
+from flask import Flask, render_template, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask.ext.wtf import CSRFProtect
@@ -48,6 +48,15 @@ def create_app(config_name):
 
     # 设置session保存指定位置
     Session(app)
+
+    from info.utils.common import user_login_data
+    @app.errorhandler(404)
+    @user_login_data
+    def page_not_found(e):
+        user=g.user
+        data={"user":user.to_dict() if user else None}
+        return render_template("news/404.html",data=data)
+
 
     @app.after_request
     def after_request(response):
