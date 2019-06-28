@@ -228,6 +228,5 @@ def news_detail(news_id):
         "is_collected":is_collected,
         "comments":comment_dict_li
     }
-    print()
-    print(comment_dict_li)
+
     return render_template("news/detail.html",data=data)
