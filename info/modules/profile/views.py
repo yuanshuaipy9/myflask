@@ -6,6 +6,30 @@ from info.utils.common import user_login_data
 from info.utils.image_storage import storage
 from info.utils.response_code import RET
 
+@profile_blu.route("/pass_info",methods=["post","get"])
+@user_login_data   # 用户必须登录才能进来
+def pass_info():
+    user=g.user
+    if request.method=="GET":
+        return render_template("news/user_pass_info.html",data={"user":user.to_dict()})
+
+    # 1. 获取参数
+    old_password = request.json.get("old_password")
+    new_password = request.json.get("new_password")
+
+    # 2. 校验参数
+    if not all([old_password,new_password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    # 判断密码
+    if not user.check_password(old_password):
+        return jsonify(errno=RET.PWDERR, errmsg="原密码错误")
+
+    #  设置新密码
+    user.password = new_password
+
+    return jsonify(errno=RET.OK, errmsg="保存成功")
+
 
 @profile_blu.route("/pic_info",methods=["post","get"])
 @user_login_data   # 用户必须登录才能进来
