@@ -1,10 +1,35 @@
 from flask import render_template, g, redirect, request, jsonify, current_app
 
 from info import constants
+from info.models import Category
 from info.modules.profile import profile_blu
 from info.utils.common import user_login_data
 from info.utils.image_storage import storage
 from info.utils.response_code import RET
+
+
+@profile_blu.route("/news_release",methods=["GET","POST"])
+@user_login_data
+def news_release():
+    if request.method == "GET":
+        # 加载新闻分类数据
+        categories = []
+        try:
+            categories=Category.query.all()
+        except Exception as e:
+            current_app.logger.error(e)
+
+        category_dict_li=[]
+        for category in categories:
+            category_dict_li.append(category.to_dict())
+
+        category_dict_li.pop(0)
+
+        return render_template("news/user_news_release.html",data={"categories": category_dict_li})
+
+
+
+
 
 @profile_blu.route("/collection")
 @user_login_data
@@ -18,6 +43,7 @@ def user_collection():
         page=int(page)
     except Exception as e:
         current_app.logger.error(e)
+        page = 1
 
     # 查询用户指定页数的收藏的新闻
     news_list=[]
