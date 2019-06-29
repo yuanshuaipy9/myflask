@@ -18,11 +18,12 @@ manager.add_command('db', MigrateCommand)
 def createsuperuser(name,password):
     if not all([name,password]):
         print("参数不足")
-        user=User()
-        user.nick_name = name
-        user.mobile = name
-        user.password = password
-        user.is_admin = True
+
+    user=User()
+    user.nick_name = name
+    user.mobile = name
+    user.password = password
+    user.is_admin = True
     try:
         db.session.add(user)
         db.session.commit()
