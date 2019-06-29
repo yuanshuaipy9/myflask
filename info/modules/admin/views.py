@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import render_template, request, current_app, session, redirect, url_for, g
 
@@ -33,10 +33,33 @@ def user_count():
     except Exception as e:
         current_app.logger.error(e)
 
-    data = {
+    # 折线图数据
+
+    active_time = []
+    active_count = []
+
+    # 取到今天的时间字符串
+    today_date_str = ("%d-%02d-%02d" % (t.tm_year, t.tm_mon, t.tm_mday))
+    # 转成时间对象
+    today_date = datetime.strptime(today_date_str, "%Y-%m-%d")
+
+    for i in range(0,31):
+        begin=today_date-timedelta(days=i)
+        end=today_date-timedelta(days=(i-1))
+        count=User.query.filter(User.is_admin==False,User.last_login>begin,User.last_login<end).count()
+        active_count.append(count)
+        active_time.append(begin.strftime("%Y-%m-%d"))
+
+    # 让最近的一天显示在最后
+    active_time.reverse()
+    active_count.reverse()
+
+    data={
         "total_count": total_count,
         "mon_count": mon_count,
-        "day_count": day_count
+        "day_count": day_count,
+        "active_time": active_time,
+        "active_count": active_count
     }
     return render_template('admin/user_count.html', data=data)
 
@@ -46,6 +69,7 @@ def user_count():
 def index():
     user = g.user
     return render_template("admin/index.html",user=user.to_dict())
+
 
 @admin_blu.route("/login",methods=["post","get"])
 def login():
