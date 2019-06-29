@@ -10,6 +10,10 @@ def index():
 @admin_blu.route("/login",methods=["post","get"])
 def login():
     if request.method=="GET":
+        user_id = session["user_id"]
+        is_admin = session["is_admin"]
+        if user_id and is_admin:
+            return redirect(url_for("admin.index"))
         return render_template("admin/login.html")
 
     # 取到登陆的参数
